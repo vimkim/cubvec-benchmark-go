@@ -27,8 +27,10 @@ func main() {
 	sqlFilename := fmt.Sprintf("test_%d_%d.sql", *dim, *rows)
 	sqlContent := fmt.Sprintf(`SELECT @session_var := vec FROM %s LIMIT 1;
 SET TRACE ON;
-SELECT count(*) from (SELECT /*+ no_merge */ COSINE_DISTANCE(@session_var, vec) FROM %s);
-SHOW TRACE;`, *table, *table)
+SELECT /*+ recompile */ count(*) from (SELECT /*+ no_merge */ COSINE_DISTANCE(@session_var, vec) FROM %s);
+SHOW TRACE;
+SELECT /*+ recompile */ count(*) from (SELECT /*+ no_merge */ COSINE_DISTANCE(@session_var, vec) FROM %s);
+SHOW TRACE;`, *table, *table, *table)
 
 	// Write SQL to file
 	err := os.WriteFile(sqlFilename, []byte(sqlContent), 0644)
